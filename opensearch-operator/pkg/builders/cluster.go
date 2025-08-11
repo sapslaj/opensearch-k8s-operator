@@ -586,6 +586,9 @@ func NewSTSForNodePool(
 
 	// Add plugins.security.disabled=true to environment variables if SSL is disabled
 	if cr.Spec.General.DisableSSL {
+		if extraConfig == nil {
+			extraConfig = map[string]string{}
+		}
 		extraConfig["plugins.security.disabled"] = "true"
 	}
 
