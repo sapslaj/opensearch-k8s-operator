@@ -11,7 +11,6 @@ resources:
 - bases/opensearch.opster.io_opensearchuserrolebindings.yaml
 - bases/opensearch.opster.io_opensearchusers.yaml
 - bases/opensearch.opster.io_opensearchismpolicies.yaml
-- bases/crd-servicemonitor.yaml
 - bases/opensearch.opster.io_opensearchsnapshotpolicies.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
