@@ -215,8 +215,13 @@ func CreateAdditionalVolumes(
 }
 
 func OpensearchClusterURL(cluster *opsterv1.OpenSearchCluster) string {
+	scheme := "https"
+	if cluster.Spec.General.DisableSSL {
+		scheme = "http"
+	}
 	return fmt.Sprintf(
-		"https://%s.%s.svc.%s:%v",
+		"%s://%s.%s.svc.%s:%v",
+		scheme,
 		cluster.Spec.General.ServiceName,
 		cluster.Namespace,
 		helpers.ClusterDnsBase(),

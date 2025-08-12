@@ -4,13 +4,15 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"github.com/Opster/opensearch-k8s-operator/opensearch-operator/pkg/helpers"
+	"fmt"
 	"io"
-	"k8s.io/utils/ptr"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Opster/opensearch-k8s-operator/opensearch-operator/pkg/helpers"
+	"k8s.io/utils/ptr"
 
 	"github.com/Opster/opensearch-k8s-operator/opensearch-operator/opensearch-gateway/responses"
 	"github.com/opensearch-project/opensearch-go"
@@ -73,13 +75,16 @@ func NewOsClusterClient(clusterUrl string, username string, password string, opt
 			if options.transport != nil {
 				return options.transport
 			}
-			return &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			transport := &http.Transport{
 				// These options are needed as otherwise connections would be kept and leak memory
 				// Connection reuse is not really possible due to each reconcile run being independent
 				DisableKeepAlives: true,
 				MaxIdleConns:      1,
 			}
+			if strings.HasPrefix("https", clusterUrl) {
+				transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+			}
+			return transport
 		}(),
 		Addresses: []string{clusterUrl},
 		Username:  username,
@@ -88,7 +93,7 @@ func NewOsClusterClient(clusterUrl string, username string, password string, opt
 
 	client, err := NewOsClusterClientFromConfig(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create new OpenSearch client: %w", err)
 	}
 
 	client.OsClusterClientOptions = options
