@@ -554,6 +554,13 @@ func NewSTSForNodePool(
 		},
 	}
 
+	if cr.Spec.General.DisableSSL {
+		sts.Spec.Template.Spec.Containers[0].Env = append(sts.Spec.Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "plugins.security.disabled",
+			Value: "true",
+		})
+	}
+
 	// Append additional config to env vars
 	keys := helpers.SortedKeys(extraConfig)
 	for _, k := range keys {
@@ -849,6 +856,13 @@ func NewBootstrapPod(
 			Name:  "http.port",
 			Value: fmt.Sprint(cr.Spec.General.HttpPort),
 		},
+	}
+
+	if cr.Spec.General.DisableSSL {
+		env = append(env, corev1.EnvVar{
+			Name:  "plugins.security.disabled",
+			Value: "true",
+		})
 	}
 
 	// Append additional config to env vars, use General.AdditionalConfig by default, overwrite with Bootstrap.AdditionalConfig
